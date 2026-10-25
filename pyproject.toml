@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dynamic-agents"
+version = "0.1.0"
+description = "Dynamic multi-agent team and case orchestration framework"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "Denni-Cowoker" }]
+dependencies = [
+  "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
+  "openpyxl>=3.1,<4",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "python-multipart>=0.0.20,<1",
+  "rich>=14,<15",
+  "structlog>=25,<26",
+  "typer>=0.16,<1",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[project.optional-dependencies]
+production = [
+  "alembic>=1.16,<2",
+  "redis>=6,<7",
+  "sqlalchemy>=2.0,<3",
+]
+llm = [
+  "langgraph>=0.6,<1",
+  "litellm>=1.74,<2",
+  "pydantic-ai>=1.0,<2",
+]
+documents = [
+  "pypdf>=6,<7",
+  "python-docx>=1.2,<2",
+]
+dev = [
+  "mypy>=1.17,<2",
+  "pytest>=8.4,<9",
+  "pytest-asyncio>=1.1,<2",
+  "ruff>=0.12,<1",
+]
+
+[project.scripts]
+dynamic-agents = "dynamic_agents.cli.main:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dynamic_agents"]
+
+[tool.hatch.build]
+exclude = ["/.uv-cache", "/.data", "/.venv", "/dist", "/tests", "/.git"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Keep pytest scratch space inside the project. The default Windows temp dir
+# (%TEMP%\pytest-of-<user>) intermittently fails with PermissionError when the
+# path is synced or locked, which made a clean `pytest` run impossible.
+addopts = "-q --basetemp=.data/pytest-tmp"
+cache_dir = ".data/pytest_cache"
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008", "E501", "UP017"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+warn_unused_ignores = true
+exclude = "(^|/)(tests|migrations)/"
